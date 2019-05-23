@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  
+
+  <title>DES Team Youtube Project</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <!-- Custom fonts for this template-->
+  <link href="{{url_for('static', filename='vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="{{url_for('static', filename='css/sb-admin-2.min.css')}}" rel="stylesheet">
+
+<!-- On Change Function -->
+  <script type="text/javascript">
+  function categoryChange(cat_id) {
+    var id = cat_id;
+    // alert("You picked: " + id);
+    var url="/?cat_id="+id;
+    window.location.replace(url)
+    ;
+ }
+  </script>
+
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+      <!-- Sidebar - Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('index') }}">
+        <div class="sidebar-brand-icon rotate-n-15">
+          <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">DES Team</div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('index') }}">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Trending YouTube Videos</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+      <!-- {{url_for('static', filename='vendor/fontawesome-free/css/all.min.css')}}" -->
+      <!-- Nav Item - Tables -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('tables') }}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Tables</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider d-none d-md-block">
+
+      <!-- Sidebar Toggler (Sidebar) -->
+      <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+      </div>
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+          <!-- Sidebar Toggle (Topbar) -->
+          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+          </button>
+
+          <!-- Topbar Search -->
+          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+            <div class="input-group">
+              <!-- <input type="text" class="form-control bg-light border-0 small" placeholder="Select a category..." aria-label="Search" aria-describedby="basic-addon2"> -->
+              <select id="#category" onchange="categoryChange(this.value)" method="GET" action="/">
+                <!-- <option value ="all">all categories</option> -->
+                {% for record in cat_table %}
+                <option value ="{{record.cat_id}}">{{record.cat_desc}}</option>
+                {% endfor %}
+              </select>
+              
+            </div>
+          </form>
+
+          <!-- Topbar Navbar -->
+          <ul class="navbar-nav ml-auto">
+
+            <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+            <li class="nav-item dropdown no-arrow d-sm-none">
+              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-search fa-fw"></i>
+              </a>
+              <!-- Dropdown - Messages -->
+              <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
+                <form class="form-inline mr-auto w-100 navbar-search">
+                  <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" type="button">
+                        <i class="fas fa-search fa-sm"></i>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </li>
+
+
+            <div class="topbar-divider d-none d-sm-block"></div>
+
+
+          </ul>
+
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Trending YouTube Videos: {{yt_data.cat_desc}}</h1>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Total Videos -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Videos</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{yt_data.videos}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-video fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Engagement -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Engagement</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{yt_data.engagement}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-thumbs-up fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Views -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Views</div>
+                      <div class="row no-gutters align-items-center">
+                        <div class="col-auto">
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{yt_data.view}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-eye fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Subscribers -->
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total Subscribers</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{yt_data.subscribers}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Row -->
+
+          <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-xl-8 col-lg-7">
+              
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
+                  <!--<div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                      <div class="dropdown-header">Dropdown Header:</div>
+                      <a class="dropdown-item" href="#">Action</a>
+                      <a class="dropdown-item" href="#">Another action</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                  </div>-->
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <div class="chart-area">
+                    <!--myBarChart used for bar graph-->                      
+                    <canvas id="myBarChart"></canvas>
+                  </div>          
+                </div>
+              </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Dropdown -->
+                  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Subscribers By Category</h6>
+                    <!--<div class="dropdown no-arrow">
+                      <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                        <div class="dropdown-header">Dropdown Header:</div>
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                      </div>
+                    </div>-->
+                  </div>
+                  <!-- Card Body -->
+                  <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                      <canvas id="myPieChart"></canvas>
+                    </div>
+                    <!--<div class="mt-4 text-center small">
+                      <span class="mr-2">
+                        <i class="fas fa-circle text-primary"></i> Direct
+                      </span>
+                      <span class="mr-2">
+                        <i class="fas fa-circle text-success"></i> Social
+                      </span>
+                      <span class="mr-2">
+                        <i class="fas fa-circle text-info"></i> Referral
+                      </span>
+                    </div>-->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+
+              <!-- Illustrations -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h3 class="m-0 font-weight-bold text-primary">The Story</h3>
+                </div>
+                <div class="card-body">
+                  <div class="text-center">
+                    <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="static/img/youtube.jpg" alt="youtube logo">
+                  </div>
+                  <p>Our story started when we decided to determine if there is a correlation between
+                    number of youtube subscribers and how engaged they are with the videos. We defined engagement
+                    as the sum of number of likes, dislikes ann comments. We hypothesised that the number of
+                    subscribers for a category is directly correlated to the engagement for that category. In other words,
+                    the more subscribers you have, the more video views your content will get and therefore, the higher your engagement 
+                    is likely to be. While you do not have to be a subscriber to engage with a video when people subsctibe to a video channel they
+                    can receive alerts when new videos are published which may lead to higher engagement.
+                  </p>
+              
+                </div>
+              </div>
+            </div>
+              <div class="col-lg-6 mb-4">
+              <!-- Approach -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h3 class="m-0 font-weight-bold text-primary">How We Got Here aka ETL</h3>
+                </div>
+                <div class="card-body">
+                  <h5 style=font-weight:900>Extraction</h5>
+                  <p>Using a dataset in csv from kaggle we exported the data into a table in MySQL.
+                    We then created a table called "youtube" with only the columns with pertinent information
+                    to maintain the inegrity of the original table.
+                    The description of the category IDs was found in a github file and we created a "category" table
+                    in MySQL with the category ID and category description.
+                    </p>
+                  <h5 style=font-weight:900>Transformation</h5>
+                  <p>Using update and join we added the category description column to the youtube table.
+                  
+                  After that we dropped categories that had less than 100 videos.
+                  and we ended up with 3170 rows of data and nine out of 16 categories.</p>
+                  
+                  <h5 style=font-weight:900>Loading</h5>
+                  <p>The data we wanted to use was saved in the youtube table in MySQL and was imported to
+                    a csv file as well to use in constructing our table in JavaScript.
+                  </p>
+                
+                </div>
+              </div>
+
+            </div>
+         
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; Your Website 2019</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="login.html">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Bootstrap core JavaScript-->
+  <script src="{{url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
+  <script src="{{url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="{{url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="{{url_for('static', filename='js/sb-admin-2.min.js')}}"></script>
+
+  <!-- Page level plugins -->
+  <script src="{{url_for('static', filename='vendor/chart.js/Chart.min.js')}}"></script>
+
+  <!-- Page level custom scripts -->
+ <!-- <script src="{{url_for('static', filename='js/demo/chart-bar-demo.js')}}"></script>
+  <script src="{{url_for('static', filename='js/demo/chart-pie-demo.js')}}"></script> -->
+
+
+
+<script>
+
+//bar chart script here
+// Bar Chart Example
+var ctx = document.getElementById("myBarChart");
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Likes', 'Dislikes', 'Comments'],
+    datasets: [{
+      label: "Engagements",
+      backgroundColor: "#1cc88a",
+      //hoverBackgroundColor: "Gray",
+      //borderColor: "Green",
+      data: [ '{{ yt_data.Likes }}', 
+        '{{ yt_data.Dislikes }}',
+        '{{ yt_data.Comments }}'
+      ],
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'Engagement Count'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false,
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        },
+        ticks: {
+          maxTicksLimit: 6
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          maxTicksLimit: 5,
+          padding: 10
+          // Include a dollar sign in the ticks
+          //callback: function(value, index, values) {
+            //return '$' + number_format(value);
+          }
+        },
+        //gridLines: {
+          
+        //}
+      ],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+    },
+  }
+});
+</script>
+
+
+<script>
+///////////////////////////////////////////////
+var catidname = {{yt_data.cat_id}};
+//var catidname="23";
+
+//window.alert (catidname);
+
+//create var
+var cl1="green";
+var cl2="red";
+var cl3="blue";
+var cl4="blue";
+var cl5="blue";
+var cl6="blue";
+var cl7="blue";
+var cl8="blue";
+var cl9="blue";
+
+//color graph
+switch(catidname) {
+  case 23:
+  cl1="#f6c23e";
+  cl2="gray";
+  cl3="gray";
+  cl4="gray";
+  cl5="gray";
+  cl6="gray";
+  cl7="gray";
+  cl8="gray";
+  cl9="gray";
+    break;
+  case 24:
+  cl1="gray";
+  cl2="#f6c23e";
+  cl3="gray";
+  cl4="gray";
+  cl5="gray";
+  cl6="gray";
+  cl7="gray";
+  cl8="gray";
+  cl9="gray";
+    break;
+  case 1:
+  cl1="gray";
+  cl2="gray";
+  cl3="#f6c23e";
+  cl4="gray";
+  cl5="gray";
+  cl6="gray";
+  cl7="gray";
+  cl8="gray";
+  cl9="gray";
+    break;
+  case 26:
+  cl1="gray";
+  cl2="gray";
+  cl3="gray";
+  cl4="#f6c23e";
+  cl5="gray";
+  cl6="gray";
+  cl7="gray";
+  cl8="gray";
+  cl9="gray";
+    break;  
+  case 10:
+  cl1="gray";
+  cl2="gray";
+  cl3="gray";
+  cl4="gray";
+  cl5="#f6c23e";
+  cl6="gray";
+  cl7="gray";
+  cl8="gray";
+  cl9="gray";
+    break;
+  case 25:
+  cl1="gray";
+  cl2="gray";
+  cl3="gray";
+  cl4="gray";
+  cl5="gray";
+  cl6="#f6c23e";
+  cl7="gray";
+  cl8="gray";
+  cl9="gray";
+  break;
+  case 22:
+  cl1="gray";
+  cl2="gray";
+  cl3="gray";
+  cl4="gray";
+  cl5="gray";
+  cl6="gray";
+  cl7="#f6c23e";
+  cl8="gray";
+  cl9="gray";
+    break;
+  case 28:
+  cl1="gray";
+  cl2="gray";
+  cl3="gray";
+  cl4="gray";
+  cl5="gray";
+  cl6="gray";
+  cl7="gray";
+  cl8="#f6c23e";
+  cl9="gray";
+    break;
+  case 17:
+  cl1="gray";
+  cl2="gray";
+  cl3="gray";
+  cl4="gray";
+  cl5="gray";
+  cl6="gray";
+  cl7="gray";
+  cl8="gray";
+  cl9="#f6c23e";
+    break;
+  default:
+  cl1="#f6c23e";
+  cl2="#f6c23e";
+  cl3="#f6c23e";
+  cl4="#f6c23e";
+  cl5="#f6c23e";
+  cl6="#f6c23e";
+  cl7="#f6c23e";
+  cl8="#f6c23e";
+  cl9="#f6c23e";
+}
+// Pie Graph
+var ctx = document.getElementById("myPieChart");
+var myPieChart = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ["Comedy", "Entertainment", "Film and Animation",
+    "How to & Style", "Music", "News & Politics",
+    "People & Blogs", "Science & Technology", "Sports"],
+    datasets: [{
+      data: [ 1804910088,
+        3312827833,
+        235994730,
+        616073744,
+        1761747379,
+        494781427,
+        774827914,
+        463883521,
+        549173857
+      //'{{ yt_data.comedysubcount }}',
+      //'{{ yt_data.entertainmentsubcount }}',
+      //'{{ yt_data.filmsubcount }}',
+      //'{{ yt_data.howtosubcount }}',
+      //'{{ yt_data.musicsubcount }}',
+      //'{{ yt_data.newssubcount }}',
+      //'{{ yt_data.blogsubcount }}',
+      //'{{ yt_data.techsubcount }}',
+      //'{{ yt_data.sportsubcount }}'
+      ],
+      backgroundColor: [cl1, cl2, cl3, cl4, cl5, cl6, cl7, cl8, cl9],
+      hoverBackgroundColor: [],
+      //hoverBorderColor: "rgba(234, 236, 244, 1)",
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    tooltips: {
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+    },
+    legend: {
+      display: false
+    },
+    cutoutPercentage: 80,
+  },
+});
+</script>
+
+
+</body>
+
+</html>
